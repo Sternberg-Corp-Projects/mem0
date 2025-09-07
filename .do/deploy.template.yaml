@@ -67,7 +67,8 @@ spec:
           scope: RUN_AND_BUILD_TIME
           value: ${APP_URL}
   databases:
-    - name: db
+    - cluster_name: mem0-db
       engine: PG
-      version: "16"
+      name: db
       production: true
+      version: "16"
