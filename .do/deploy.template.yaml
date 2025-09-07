@@ -24,7 +24,7 @@ spec:
       github:
         branch: main
         repo: Sternberg-Corp-Projects/mem0
-      dockerfile_path: platform/api/Dockerfile
+      dockerfile_path: openmemory/api/Dockerfile
       http_port: 8765
       instance_count: 1
       instance_size_slug: basic-xxs
@@ -36,21 +36,25 @@ spec:
         - key: DATABASE_URL
           scope: RUN_TIME
           value: ${db.DATABASE_URL}
-        - key: QDRANT_URL
-          scope: RUN_TIME
-          value: http://qdrant:6333
         - key: NEXT_PUBLIC_BASE_URL
           scope: RUN_AND_BUILD_TIME
           value: ${APP_URL}
+        - key: QDRANT_URL
+          scope: RUN_TIME
+          type: SECRET
+          value: "https://YOUR_QDRANT_URL:6333"
+        - key: QDRANT_API_KEY
+          scope: RUN_TIME
+          type: SECRET
+          value: "your_qdrant_api_key_here"
       health_check:
-        http_path: /health
-      run_command: python -m uvicorn app:app --host 0.0.0.0 --port 8765
+        http_path: /docs
     - name: ui
       environment_slug: node-js
       github:
         branch: main
         repo: Sternberg-Corp-Projects/mem0
-      dockerfile_path: platform/ui/Dockerfile
+      dockerfile_path: openmemory/ui/Dockerfile
       http_port: 3000
       instance_count: 1
       instance_size_slug: basic-xxs
@@ -64,25 +68,8 @@ spec:
         - key: NEXT_PUBLIC_BASE_URL
           scope: RUN_AND_BUILD_TIME
           value: ${APP_URL}
-      run_command: yarn start
-    - name: qdrant
-      image:
-        registry_type: DOCKER_HUB
-        registry: docker.io
-        repository: qdrant/qdrant
-        tag: latest
-      http_port: 6333
-      instance_count: 1
-      instance_size_slug: basic-xxs
-      envs:
-        - key: QDRANT__SERVICE__GRPC_PORT
-          scope: RUN_TIME
-          value: "6334"
-      internal_ports:
-        - 6333
   databases:
     - name: db
       engine: PG
       version: "16"
       production: true
-      instance_size_slug: db-s-dev-database

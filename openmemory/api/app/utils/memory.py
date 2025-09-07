@@ -148,7 +148,17 @@ def get_default_memory_config():
             "host": os.environ.get('CHROMA_HOST'),
             "port": int(os.environ.get('CHROMA_PORT'))
         })
+    elif os.environ.get('QDRANT_URL'):
+        # Managed Qdrant (Cloud) via URL + API key
+        vector_store_provider = "qdrant"
+        vector_store_config = {
+            "collection_name": "openmemory",
+            "url": os.environ.get('QDRANT_URL')
+        }
+        if os.environ.get('QDRANT_API_KEY'):
+            vector_store_config["api_key"] = os.environ.get('QDRANT_API_KEY')
     elif os.environ.get('QDRANT_HOST') and os.environ.get('QDRANT_PORT'):
+        # Self-hosted Qdrant via host/port
         vector_store_provider = "qdrant"
         vector_store_config.update({
             "host": os.environ.get('QDRANT_HOST'),
