@@ -380,17 +380,29 @@ async def handle_sse(request: Request):
         client_name_var.reset(client_token)
 
 
+# Accept POSTs to both /messages and /messages/ (no client context)
+@mcp_router.post("/messages")
 @mcp_router.post("/messages/")
-async def handle_get_message(request: Request):
-    return await handle_post_message(request)
+async def post_messages_root(request: Request):
+    return await _handle_post_message_raw(request)
 
-
+# Accept POSTs to both .../messages and .../messages/ with client context
+@mcp_router.post("/{client_name}/sse/{user_id}/messages")
 @mcp_router.post("/{client_name}/sse/{user_id}/messages/")
-async def handle_post_message(request: Request):
-    return await handle_post_message(request)
+async def post_messages_with_context(request: Request):
+    # Ensure contextvars are set for this request too
+    uid = request.path_params.get("user_id")
+    client_name = request.path_params.get("client_name")
+    user_token = user_id_var.set(uid or "")
+    client_token = client_name_var.set(client_name or "")
+    try:
+        return await _handle_post_message_raw(request)
+    finally:
+        user_id_var.reset(user_token)
+        client_name_var.reset(client_token)
 
-async def handle_post_message(request: Request):
-    """Handle POST messages for SSE"""
+async def _handle_post_message_raw(request: Request):
+    """Handle POST messages for SSE (raw handler used by routes above)."""
     try:
         body = await request.body()
 
@@ -402,7 +414,7 @@ async def handle_post_message(request: Request):
         async def send(message):
             return {}
 
-        # Call handle_post_message with the correct arguments
+        # Forward the POST to the SSE transport
         await sse.handle_post_message(request.scope, receive, send)
 
         # Return a success response

@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 
 app = FastAPI(title="OpenMemory API")
+# Avoid automatic 307 redirects on missing trailing slashes (can break MCP POST over proxies)
+app.router.redirect_slashes = False
 
 app.add_middleware(
     CORSMiddleware,
