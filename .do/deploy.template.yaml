@@ -24,6 +24,7 @@ spec:
         branch: main
         repo: Sternberg-Corp-Projects/mem0
       dockerfile_path: openmemory/api/Dockerfile
+      source_dir: openmemory/api
       http_port: 8765
       instance_count: 1
       instance_size_slug: professional-xs
@@ -53,6 +54,7 @@ spec:
         branch: main
         repo: Sternberg-Corp-Projects/mem0
       dockerfile_path: openmemory/ui/Dockerfile
+      source_dir: openmemory/ui
       http_port: 3000
       instance_count: 1
       instance_size_slug: professional-xs
