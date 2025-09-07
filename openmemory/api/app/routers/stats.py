@@ -3,7 +3,7 @@ from app.models import App, Memory, MemoryState, User
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-router = APIRouter(prefix="/api/v1/stats", tags=["stats"])
+router = APIRouter(prefix="/v1/stats", tags=["stats"])
 
 @router.get("/")
 async def get_profile(

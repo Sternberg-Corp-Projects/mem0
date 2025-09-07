@@ -78,12 +78,19 @@ create_default_app()
 # Setup MCP server
 setup_mcp_server(app)
 
-# Include routers
+# Include routers (both with and without /api prefix to accommodate path prefix stripping by ingress)
+# Without /api
 app.include_router(memories_router)
 app.include_router(apps_router)
 app.include_router(stats_router)
 app.include_router(config_router)
 app.include_router(backup_router)
+# With /api
+app.include_router(memories_router, prefix="/api")
+app.include_router(apps_router, prefix="/api")
+app.include_router(stats_router, prefix="/api")
+app.include_router(config_router, prefix="/api")
+app.include_router(backup_router, prefix="/api")
 
 # Add pagination support
 add_pagination(app)

@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, func
 from sqlalchemy.orm import Session, joinedload
 
-router = APIRouter(prefix="/api/v1/apps", tags=["apps"])
+router = APIRouter(prefix="/v1/apps", tags=["apps"])
 
 # Helper functions
 def get_app_or_404(db: Session, app_id: UUID) -> App:

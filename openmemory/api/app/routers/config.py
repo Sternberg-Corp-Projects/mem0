@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-router = APIRouter(prefix="/api/v1/config", tags=["config"])
+router = APIRouter(prefix="/v1/config", tags=["config"])
 
 class LLMConfig(BaseModel):
     model: str = Field(..., description="LLM model name")

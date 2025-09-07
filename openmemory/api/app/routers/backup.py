@@ -21,7 +21,7 @@ from app.utils.memory import get_memory_client
 
 from uuid import uuid4
 
-router = APIRouter(prefix="/api/v1/backup", tags=["backup"])
+router = APIRouter(prefix="/v1/backup", tags=["backup"])
 
 class ExportRequest(BaseModel):
     user_id: str

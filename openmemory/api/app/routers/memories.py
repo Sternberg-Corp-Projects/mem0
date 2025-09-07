@@ -24,7 +24,7 @@ from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
-router = APIRouter(prefix="/api/v1/memories", tags=["memories"])
+router = APIRouter(prefix="/v1/memories", tags=["memories"])
 
 
 def get_memory_or_404(db: Session, memory_id: UUID) -> Memory:
