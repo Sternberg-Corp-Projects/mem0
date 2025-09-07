@@ -552,7 +552,9 @@ async def filter_memories(
         to_datetime = datetime.fromtimestamp(request.to_date, tz=UTC)
         query = query.filter(Memory.created_at <= to_datetime)
 
-    # Apply sorting
+    # Apply sorting while ensuring Postgres DISTINCT ON rules are met.
+    # When using DISTINCT ON (memories.id), ORDER BY must begin with memories.id.
+    order_clauses = []
     if request.sort_column and request.sort_direction:
         sort_direction = request.sort_direction.lower()
         if sort_direction not in ['asc', 'desc']:
@@ -568,18 +570,16 @@ async def filter_memories(
             raise HTTPException(status_code=400, detail="Invalid sort column")
 
         sort_field = sort_mapping[request.sort_column]
-        if sort_direction == 'desc':
-            query = query.order_by(sort_field.desc())
-        else:
-            query = query.order_by(sort_field.asc())
+        order_clauses.append(sort_field.desc() if sort_direction == 'desc' else sort_field.asc())
     else:
         # Default sorting
-        query = query.order_by(Memory.created_at.desc())
+        order_clauses.append(Memory.created_at.desc())
 
     # Add eager loading for categories and make the query distinct
+    # Ensure ORDER BY starts with Memory.id to satisfy DISTINCT ON requirements in Postgres
     query = query.options(
         joinedload(Memory.categories)
-    ).distinct(Memory.id)
+    ).order_by(Memory.id, *order_clauses).distinct(Memory.id)
 
     # Use fastapi-pagination's paginate function
     return sqlalchemy_paginate(
