@@ -1,0 +1,79 @@
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+features:
+  - buildpack-stack=ubuntu-22
+ingress:
+  rules:
+    - component:
+        name: api
+      match:
+        path:
+          prefix: /
+    - component:
+        name: ui
+      match:
+        path:
+          prefix: /ui
+name: mem0-mcp
+region: fra1
+services:
+  - name: api
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: Sternberg-Corp-Projects/mem0
+    source_dir: platform/api
+    http_port: 8765
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: OPENAI_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: ${OPENAI_API_KEY}
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${db.DATABASE_URL}
+      - key: QDRANT_URL
+        scope: RUN_TIME
+        value: http://qdrant:6333
+    health_check:
+      http_path: /health
+  - name: ui
+    github:
+      branch: main
+      deploy_on_push: true
+      repo: Sternberg-Corp-Projects/mem0
+    source_dir: platform/ui
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: NEXT_PUBLIC_API_URL
+        scope: RUN_TIME
+        value: ${api.PUBLIC_URL}
+      - key: NEXT_PUBLIC_USER_ID
+        scope: RUN_TIME
+        value: sternberg_dev
+  - name: qdrant
+    image:
+      registry_type: DOCKER_HUB
+      registry: docker.io
+      repository: qdrant/qdrant
+      tag: latest
+    http_port: 6333
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: QDRANT__SERVICE__GRPC_PORT
+        scope: RUN_TIME
+        value: "6334"
+    internal_ports:
+      - 6333
+databases:
+  - name: db
+    engine: PG
+    version: "16"
+    production: true
+    instance_size_slug: db-s-dev-database
