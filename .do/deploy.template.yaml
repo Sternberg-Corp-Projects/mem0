@@ -20,7 +20,6 @@ spec:
   region: fra1
   services:
     - name: api
-      environment_slug: python
       github:
         branch: main
         repo: Sternberg-Corp-Projects/mem0
@@ -50,7 +49,6 @@ spec:
       health_check:
         http_path: /docs
     - name: ui
-      environment_slug: node-js
       github:
         branch: main
         repo: Sternberg-Corp-Projects/mem0

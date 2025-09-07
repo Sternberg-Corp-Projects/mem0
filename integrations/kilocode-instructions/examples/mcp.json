@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "openmemory": {
+      "type": "sse",
+      "url": "https://YOUR-APP.ondigitalocean.app/mcp/YOUR_PROJECT_SLUG/sse/${env:MEM0_USER_ID}",
+      "alwaysAllow": ["add_memories", "search_memory", "list_memories"],
+      "disabled": false
+    }
+  }
+}
+

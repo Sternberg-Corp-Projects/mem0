@@ -19,7 +19,6 @@ name: mem0-mcp
 region: fra1
 services:
   - name: api
-    environment_slug: python
     github:
       branch: main
       deploy_on_push: true
@@ -50,7 +49,6 @@ services:
     health_check:
       http_path: /docs
   - name: ui
-    environment_slug: node-js
     github:
       branch: main
       deploy_on_push: true
