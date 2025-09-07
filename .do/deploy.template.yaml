@@ -7,11 +7,6 @@ spec:
   ingress:
     rules:
       - component:
-          name: ui
-        match:
-          path:
-            prefix: /
-      - component:
           name: api
         match:
           path:
@@ -26,6 +21,11 @@ spec:
         match:
           path:
             prefix: /mcp
+      - component:
+          name: ui
+        match:
+          path:
+            prefix: /
   name: mem0-mcp
   region: fra1
   services:
