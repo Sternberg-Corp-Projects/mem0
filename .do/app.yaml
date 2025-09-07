@@ -19,14 +19,15 @@ name: mem0-mcp
 region: fra1
 services:
   - name: api
+    environment_slug: python
     github:
       branch: main
       deploy_on_push: true
       repo: Sternberg-Corp-Projects/mem0
-    source_dir: platform/api
+    dockerfile_path: platform/api/Dockerfile
     http_port: 8765
     instance_count: 1
-    instance_size_slug: apps-d-2vcpu-8gb
+    instance_size_slug: basic-xxs
     envs:
       - key: OPENAI_API_KEY
         scope: RUN_TIME
@@ -39,20 +40,21 @@ services:
         scope: RUN_TIME
         value: http://qdrant:6333
       - key: NEXT_PUBLIC_BASE_URL
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}
     health_check:
       http_path: /health
     run_command: python -m uvicorn app:app --host 0.0.0.0 --port 8765
   - name: ui
+    environment_slug: node-js
     github:
       branch: main
       deploy_on_push: true
       repo: Sternberg-Corp-Projects/mem0
-    source_dir: platform/ui
+    dockerfile_path: platform/ui/Dockerfile
     http_port: 3000
     instance_count: 1
-    instance_size_slug: apps-d-2vcpu-8gb
+    instance_size_slug: basic-xxs
     envs:
       - key: NEXT_PUBLIC_API_URL
         scope: RUN_TIME
@@ -61,7 +63,7 @@ services:
         scope: RUN_TIME
         value: sternberg_dev
       - key: NEXT_PUBLIC_BASE_URL
-        scope: RUN_TIME
+        scope: RUN_AND_BUILD_TIME
         value: ${APP_URL}
     run_command: yarn start
   - name: qdrant
@@ -72,7 +74,7 @@ services:
       tag: latest
     http_port: 6333
     instance_count: 1
-    instance_size_slug: apps-d-2vcpu-8gb
+    instance_size_slug: basic-xxs
     envs:
       - key: QDRANT__SERVICE__GRPC_PORT
         scope: RUN_TIME
