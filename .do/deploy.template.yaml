@@ -22,6 +22,11 @@ spec:
           path:
             prefix: /mcp
       - component:
+          name: api
+        match:
+          path:
+            prefix: /openapi.json
+      - component:
           name: ui
         match:
           path:
