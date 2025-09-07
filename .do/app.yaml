@@ -26,7 +26,7 @@ services:
     source_dir: platform/api
     http_port: 8765
     instance_count: 1
-    instance_size_slug: basic-xxs
+    instance_size_slug: apps-d-2vcpu-8gb
     envs:
       - key: OPENAI_API_KEY
         scope: RUN_TIME
@@ -52,7 +52,7 @@ services:
     source_dir: platform/ui
     http_port: 3000
     instance_count: 1
-    instance_size_slug: basic-xxs
+    instance_size_slug: apps-d-2vcpu-8gb
     envs:
       - key: NEXT_PUBLIC_API_URL
         scope: RUN_TIME
@@ -72,7 +72,7 @@ services:
       tag: latest
     http_port: 6333
     instance_count: 1
-    instance_size_slug: basic-xxs
+    instance_size_slug: apps-d-2vcpu-8gb
     envs:
       - key: QDRANT__SERVICE__GRPC_PORT
         scope: RUN_TIME
