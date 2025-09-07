@@ -21,6 +21,11 @@ spec:
         match:
           path:
             prefix: /docs
+      - component:
+          name: api
+        match:
+          path:
+            prefix: /mcp
   name: mem0-mcp
   region: fra1
   services:
