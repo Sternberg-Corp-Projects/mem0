@@ -7,15 +7,20 @@ spec:
   ingress:
     rules:
       - component:
-          name: api
+          name: ui
         match:
           path:
             prefix: /
       - component:
-          name: ui
+          name: api
         match:
           path:
-            prefix: /ui
+            prefix: /api
+      - component:
+          name: api
+        match:
+          path:
+            prefix: /docs
   name: mem0-mcp
   region: fra1
   services:
@@ -47,6 +52,9 @@ spec:
           scope: RUN_TIME
           type: SECRET
           value: "your_qdrant_api_key_here"
+        - key: USER
+          scope: RUN_TIME
+          value: sternberg_dev
       health_check:
         http_path: /docs
     - name: ui
