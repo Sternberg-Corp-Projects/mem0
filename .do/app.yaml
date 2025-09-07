@@ -38,8 +38,12 @@ services:
       - key: QDRANT_URL
         scope: RUN_TIME
         value: http://qdrant:6333
+      - key: NEXT_PUBLIC_BASE_URL
+        scope: RUN_TIME
+        value: ${APP_URL}
     health_check:
       http_path: /health
+    run_command: python -m uvicorn app:app --host 0.0.0.0 --port 8765
   - name: ui
     github:
       branch: main
@@ -56,6 +60,10 @@ services:
       - key: NEXT_PUBLIC_USER_ID
         scope: RUN_TIME
         value: sternberg_dev
+      - key: NEXT_PUBLIC_BASE_URL
+        scope: RUN_TIME
+        value: ${APP_URL}
+    run_command: yarn start
   - name: qdrant
     image:
       registry_type: DOCKER_HUB
