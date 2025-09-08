@@ -31,6 +31,7 @@ ingress:
         path:
           prefix: /
 name: mem0-mcp
+disable_edge_cache: true
 region: fra1
 services:
   - name: api
