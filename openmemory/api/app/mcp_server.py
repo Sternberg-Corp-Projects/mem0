@@ -55,7 +55,12 @@ client_name_var: contextvars.ContextVar[str] = contextvars.ContextVar("client_na
 mcp_router = APIRouter(prefix="")
 
 # Initialize SSE transport at a base path that works with or without /mcp mount
-sse = SseServerTransport("/messages/")
+# Use a short ping interval to flush headers quickly through the edge proxy
+try:
+    sse = SseServerTransport("/messages/", ping_interval=3.0)
+except TypeError:
+    # Older mcp versions may not support ping_interval; fall back without it
+    sse = SseServerTransport("/messages/")
 
 @mcp.tool(description="Add a new memory. This method is called everytime the user informs anything about themselves, their preferences, or anything that has any relevant information which can be useful in the future conversation. This can also be called when the user asks you to remember something.")
 async def add_memories(text: str) -> str:
