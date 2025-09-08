@@ -475,6 +475,7 @@ def setup_mcp_server(app: FastAPI):
     if http_transport is not None:
         # Create a lightweight ASGI endpoint that delegates to the HTTP transport
         @app.api_route("/mcp/http/{client_name}/{user_id}", methods=["POST"], include_in_schema=False)
+        @app.api_route("/{client_name}/{user_id}", methods=["POST"], include_in_schema=False)
         async def handle_http_stream(request: Request):
             # Set context for user/client for parity with SSE
             uid = request.path_params.get("user_id")
