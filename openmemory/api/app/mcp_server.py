@@ -32,6 +32,20 @@ from fastapi.routing import APIRouter
 from mcp.server.fastmcp import FastMCP
 from mcp.server.sse import SseServerTransport
 
+# Optional: Streamable HTTP transport (available in newer MCP versions)
+_http_transport = None
+try:
+    # Common expected import path
+    from mcp.server.streamable_http import StreamableHTTPServerTransport  # type: ignore
+    _http_transport = "streamable_http"
+except Exception:  # pragma: no cover
+    try:
+        # Alternate import path (in case of different packaging)
+        from mcp.server.http import StreamableHTTPServerTransport  # type: ignore
+        _http_transport = "http"
+    except Exception:
+        StreamableHTTPServerTransport = None  # type: ignore
+
 # Load environment variables
 load_dotenv()
 
@@ -67,6 +81,14 @@ except TypeError:
     except TypeError:
         # Fallback without explicit pings
         sse = SseServerTransport("/messages/")
+
+# Optionally initialize Streamable HTTP transport if available
+http_transport = None
+if StreamableHTTPServerTransport:
+    try:
+        http_transport = StreamableHTTPServerTransport("/mcp/http/")  # base path for HTTP transport
+    except Exception as _e:  # pragma: no cover
+        logging.warning(f"Streamable HTTP transport not initialized: {_e}")
 
 @mcp.tool(description="Add a new memory. This method is called everytime the user informs anything about themselves, their preferences, or anything that has any relevant information which can be useful in the future conversation. This can also be called when the user asks you to remember something.")
 async def add_memories(text: str) -> str:
@@ -448,3 +470,33 @@ def setup_mcp_server(app: FastAPI):
     # Include MCP router in the FastAPI app both at root and under /mcp
     app.include_router(mcp_router)
     app.include_router(mcp_router, prefix="/mcp")
+
+    # Mount streamable-http transport if available
+    if http_transport is not None:
+        # Create a lightweight ASGI endpoint that delegates to the HTTP transport
+        @app.api_route("/mcp/http/{client_name}/{user_id}", methods=["POST"], include_in_schema=False)
+        async def handle_http_stream(request: Request):
+            # Set context for user/client for parity with SSE
+            uid = request.path_params.get("user_id")
+            client = request.path_params.get("client_name")
+            user_token = user_id_var.set(uid or "")
+            client_token = client_name_var.set(client or "")
+            try:
+                # Delegate to the transport. Different versions may expose different call patterns.
+                # Try the most likely signature first.
+                if hasattr(http_transport, "handle_http"):
+                    return await http_transport.handle_http(request.scope, request.receive, request._send)  # type: ignore[attr-defined]
+                elif hasattr(http_transport, "handle_post"):
+                    return await http_transport.handle_post(request.scope, request.receive, request._send)  # type: ignore[attr-defined]
+                else:
+                    # Fallback: read body and forward through SSE's message handler (best-effort compatibility)
+                    body = await request.body()
+                    async def receive():
+                        return {"type": "http.request", "body": body, "more_body": False}
+                    async def send(_):
+                        return {}
+                    await sse.handle_post_message(request.scope, receive, send)
+                    return {"status": "ok"}
+            finally:
+                user_id_var.reset(user_token)
+                client_name_var.reset(client_token)

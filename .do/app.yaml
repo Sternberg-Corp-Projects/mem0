@@ -26,6 +26,11 @@ ingress:
         path:
           prefix: /messages
     - component:
+        name: api
+      match:
+        path:
+          prefix: /mcp/http
+    - component:
         name: ui
       match:
         path:
