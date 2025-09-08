@@ -369,16 +369,6 @@ async def handle_sse(request: Request):
             request.receive,
             request._send,
         ) as (read_stream, write_stream):
-            # Immediately flush a comment event to force proxy/CDN to send headers
-            try:
-                if hasattr(write_stream, "send"):
-                    await write_stream.send(b": connected\n\n")
-                elif hasattr(write_stream, "write"):
-                    await write_stream.write(b": connected\n\n")
-            except Exception:
-                # Non-fatal: continue without initial ping
-                pass
-
             await mcp._mcp_server.run(
                 read_stream,
                 write_stream,
