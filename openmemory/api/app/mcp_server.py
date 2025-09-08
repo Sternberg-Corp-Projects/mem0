@@ -144,7 +144,10 @@ async def add_memories(text: str) -> str:
 
                 db.commit()
 
-            return response
+            # Normalize tool result to string per MCP schema (result: str)
+            if isinstance(response, (dict, list)):
+                return json.dumps(response, ensure_ascii=False)
+            return str(response)
         finally:
             db.close()
     except Exception as e:
