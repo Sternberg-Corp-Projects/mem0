@@ -24,7 +24,12 @@ ingress:
         name: api
       match:
         path:
-          prefix: /openapi.json
+          prefix: /messages
+    - component:
+        name: ui
+      match:
+        path:
+          prefix: /
     - component:
         name: ui
       match:
