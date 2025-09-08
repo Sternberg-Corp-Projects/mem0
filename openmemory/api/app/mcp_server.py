@@ -397,6 +397,11 @@ async def handle_sse(request: Request):
 async def post_messages_root(request: Request):
     return await _handle_post_message_raw(request)
 
+# Some clients may POST to the router root with a session_id query param
+@mcp_router.post("/")
+async def post_messages_root_fallback(request: Request):
+    return await _handle_post_message_raw(request)
+
 # Accept POSTs to both .../messages and .../messages/ with client context
 @mcp_router.post("/{client_name}/sse/{user_id}/messages")
 @mcp_router.post("/{client_name}/sse/{user_id}/messages/")
