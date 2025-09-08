@@ -6,7 +6,7 @@ from app.database import Base, SessionLocal, engine
 from app.mcp_server import setup_mcp_server
 from app.models import App, User
 from app.routers import apps_router, backup_router, config_router, memories_router, stats_router
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 
@@ -14,15 +14,6 @@ app = FastAPI(title="OpenMemory API")
 # Avoid automatic 307 redirects on missing trailing slashes (can break MCP POST over proxies)
 app.router.redirect_slashes = False
 
-# Ensure SSE endpoints are never cached at the edge per DO guidance
-@app.middleware("http")
-async def _sse_cache_headers(request: Request, call_next):
-    response = await call_next(request)
-    accept = request.headers.get("accept", "")
-    if request.url.path.startswith("/mcp") or "text/event-stream" in accept:
-        # sse_starlette sets Content-Type; reinforce Cache-Control here
-        response.headers["Cache-Control"] = "no-cache"
-    return response
 
 app.add_middleware(
     CORSMiddleware,
